@@ -1,47 +1,57 @@
-# Stack & Balance
+# Stack & Balance — desktop integration
 
-**Stability challenge · Three.js + Rapier · single-player · phone required · immersive XR required**
+Stack & Balance is a single-player Three.js/Rapier stability challenge with ten
+seeded block sequences. The deterministic stack model owns placement support,
+height, dwell, the one-shot nudge and result state. A per-window Three renderer
+and Rapier collision world provide the bench presentation; decorative physics
+never changes model-space geometry or support predicates.
 
-> Planned design, not implemented or browser-tested. `index.pseudo.mjs` is an explanatory entry point, not a playable game.
+The app exposes synchronous `mount(host)` and disposes its renderer, Rapier
+world, meshes, observers, pointer/keyboard listeners, audio and account-file
+subscription idempotently. Desktop pointer/keyboard and phone button controls
+move, rotate and release each block. Practice halves model time only.
 
-## Experience
+Save and Open use the signed-in desktop's **My files** through
+`host.storage.mirrorFileContext()`. Saves contain the validated challenge,
+ordered placed blocks, active placement and rotation, dwell/nudge counters,
+practice rule and RNG state. Loading restores paused and directly accepts a
+Files launch path without showing another picker.
 
-Build a tower from awkward blocks and keep it stable while the table gives a small, announced nudge.
+Save and Open serialize file operations. Saving captures the logical snapshot
+and destination before asynchronous storage work, marks the desktop window
+dirty while the write is pending, and keeps later edits unsaved. Opening
+validates a replacement before committing it and rejects changes made during a
+confirmation or delayed read. Cancelled or failed operations keep the current
+tower and its saved-file watch. Desktop-window focus loss, workspace changes,
+minimizing, roll-up, browser blur and browser visibility changes pause the run
+until Run is selected.
 
-## What this demonstrates
+## Current limitation
 
-- Contact stability and friction
-- Bounded impulse events
-- Measured objectives rather than visual guesses
+No authored `balance-meter.riv` is supplied. The stability instrument is an
+explicit procedural placeholder, so the Rive acceptance gate remains open.
+The desktop preview does not implement the entered-XR lifecycle or world-space
+controls. Galaxy XR, physical-phone and performance/thermal testing remain
+open.
 
-## Rules and complete loop
+Engine versions are pinned in `package-lock.json`: Three.js `0.187.0` and Rapier
+`0.21.0`.
 
-- Place a prescribed block sequence; release each block before selecting another.
-- Success requires all target blocks supported above the line for a fixed dwell interval and surviving one bounded nudge.
-- Only toy objects are simulated. Slow-motion practice is a named rule setting, not display-dependent physics.
+## Verification
 
-## Bounded polished release
+```sh
+npm run typecheck --prefix apps/system/stack-balance
+npm test --prefix apps/system/stack-balance
+CODI_STACK_MANIFEST=.build/stack-balance/apps.json \
+CODI_STACK_URL=http://127.0.0.1:18345/ \
+node tests/stack-balance-browser.test.mjs
+CODI_PHONE=1 ... node tests/stack-balance-browser.test.mjs
+node tests/stack-balance-safety.test.mjs
+node tests/stack-balance-account.test.mjs
+```
 
-Ten challenges with increasing shape variety, height targets and two difficulty settings.
-
-- Show center-of-mass projection as an optional teaching overlay
-- Audible/visual nudge countdown
-- Gentle failures with one-tap retry
-
-No multiplayer, accounts, server simulation or generic editor is required. Start, rules/help, play/activity, pause, outcome/goal feedback and retry must all be complete. Settings include volume/mute, reduced motion, contrast and game-specific options where meaningful. State changes occur in the game model; animations illustrate them.
-
-## Rive inside this app
-
-Stability instrument and announcer on the bench, not an authoritative physics solver. The requested asset is `balance-meter.riv`; it is **not included**. See [RIVE.md](RIVE.md) for the authoring/integration contract. A placeholder or unrelated animated logo does not satisfy this requirement.
-
-## Save behavior
-
-Same-build world snapshot plus sequence, dwell, nudge and progress counters. See [SAVE.md](SAVE.md). Loading starts paused; resume is explicit. Entering/exiting XR preserves the live current state even when exported saves are checkpoints.
-
-## Build sequence
-
-Implement the rule loop in [gameplay.pseudo.txt](gameplay.pseudo.txt); bind the exact app lifecycle from [index.pseudo.mjs](index.pseudo.mjs); complete [CONTROLS.md](CONTROLS.md); author/integrate [RIVE.md](RIVE.md); then satisfy [ACCEPTANCE.md](ACCEPTANCE.md). The full XR flow and game-specific presentation are in [XR.md](XR.md).
-
-Target wave: **2**. Integrator first reads [AGENTS.md](../../AGENTS.md); do not guess host APIs from symbolic helper names.
-
-Use original/licensed artwork and audio. Keep the scope small enough to polish; expand content only after the release gates pass.
+Desktop and 412×915 fixture checks cover the complete block sequence,
+dwell/nudge outcome, focus-loss pause, save/reopen, malformed-file recovery
+and idempotent disposal. The delayed-save test checks pending close protection
+and captured destination behavior. The isolated account test verifies server
+sync, Files routing, paused phone-sized reopen and account isolation.
