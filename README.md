@@ -40,8 +40,8 @@ Engine versions are pinned in `package-lock.json`: Three.js `0.187.0` and Rapier
 ## Verification
 
 ```sh
-npm run typecheck --prefix apps/system/stack-balance
-npm test --prefix apps/system/stack-balance
+npm run typecheck --prefix apps/games/02-three-physics-xr/stack-balance
+npm test --prefix apps/games/02-three-physics-xr/stack-balance
 CODI_STACK_MANIFEST=.build/stack-balance/apps.json \
 CODI_STACK_URL=http://127.0.0.1:18345/ \
 node tests/stack-balance-browser.test.mjs
