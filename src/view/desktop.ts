@@ -92,7 +92,7 @@ export async function startView(host: Host, signal: AbortSignal): Promise<ViewHa
   let frame = 0;
   let last = performance.now();
   let phaseBefore = session.phase;
-  let dragging = false;
+  let dragPointer: number | null = null;
   let lastLayout = "";
   let renderer: THREE.WebGLRenderer | null = null;
   let scene: THREE.Scene | null = null;
@@ -206,12 +206,14 @@ export async function startView(host: Host, signal: AbortSignal): Promise<ViewHa
   };
   const setBusy = (value: boolean) => {
     busy = value;
+    if (value) cancelDrag();
     refresh();
   };
 
   function toggleRun(): void {
     if (busy || session.phase === "won" || session.phase === "collapsed") return;
     paused = !paused;
+    if (paused) cancelDrag();
     last = performance.now();
     audio.setMuted(!sound.checked);
     if (!paused && sound.checked) audio.unlock();
@@ -652,25 +654,32 @@ export async function startView(host: Host, signal: AbortSignal): Promise<ViewHa
     const rect = renderer!.domElement.getBoundingClientRect();
     return (event.clientX - rect.left) / Math.max(1, rect.width) * TABLE_WIDTH;
   };
+  const cancelDrag = () => {
+    const pointer = dragPointer;
+    dragPointer = null;
+    if (pointer !== null && renderer?.domElement.hasPointerCapture(pointer)) renderer.domElement.releasePointerCapture(pointer);
+  };
   const pointerDown = (event: PointerEvent) => {
-    if (busy || paused || session.phase !== "build" || !renderer) return;
-    dragging = true;
+    if (event.button !== 0 || dragPointer !== null || busy || paused || session.phase !== "build" || !renderer) return;
+    dragPointer = event.pointerId;
     renderer.domElement.setPointerCapture(event.pointerId);
     session.positionBlock(pointerPosition(event));
     mark();
     refresh();
   };
   const pointerMove = (event: PointerEvent) => {
-    if (!dragging || busy || paused) return;
+    if (dragPointer !== event.pointerId || busy || paused) return;
     session.positionBlock(pointerPosition(event));
     mark();
     refresh();
   };
   const pointerUp = (event: PointerEvent) => {
-    if (!dragging) return;
-    dragging = false;
-    if (renderer?.domElement.hasPointerCapture(event.pointerId)) renderer.domElement.releasePointerCapture(event.pointerId);
+    if (dragPointer !== event.pointerId) return;
+    cancelDrag();
     releaseBlock();
+  };
+  const pointerCancel = (event: PointerEvent) => {
+    if (dragPointer === event.pointerId) cancelDrag();
   };
   const keyboard = (event: KeyboardEvent) => {
     if (busy || event.target instanceof HTMLInputElement || event.target instanceof HTMLSelectElement) return;
@@ -689,9 +698,11 @@ export async function startView(host: Host, signal: AbortSignal): Promise<ViewHa
     const handler = action[event.key];
     if (!handler) return;
     event.preventDefault();
+    if (event.repeat && !["ArrowLeft", "ArrowRight"].includes(event.key)) return;
     handler();
   };
   const suspend = () => {
+    cancelDrag();
     if (!paused) {
       paused = true;
       audio.suspend();
@@ -723,7 +734,8 @@ export async function startView(host: Host, signal: AbortSignal): Promise<ViewHa
     [canvas, "pointerdown", pointerDown as EventListener],
     [canvas, "pointermove", pointerMove as EventListener],
     [canvas, "pointerup", pointerUp as EventListener],
-    [canvas, "pointercancel", pointerUp as EventListener],
+    [canvas, "pointercancel", pointerCancel as EventListener],
+    [canvas, "lostpointercapture", pointerCancel as EventListener],
     [element, "keydown", keyboard as EventListener],
     [window, "blur", suspend],
     [doc, "visibilitychange", visibility],
@@ -751,6 +763,7 @@ export async function startView(host: Host, signal: AbortSignal): Promise<ViewHa
     dispose() {
       if (disposed) return;
       disposed = true;
+      cancelDrag();
       cancelAnimationFrame(frame);
       clearWatch();
       windowObserver?.disconnect();

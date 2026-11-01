@@ -55,3 +55,8 @@ dwell/nudge outcome, focus-loss pause, save/reopen, malformed-file recovery
 and idempotent disposal. The delayed-save test checks pending close protection
 and captured destination behavior. The isolated account test verifies server
 sync, Files routing, paused phone-sized reopen and account isolation.
+
+The isolated `tests/stack-balance-gesture-review.test.mjs` verifies that a
+cancelled emulated touch does not drop a block, a completed touch does, and
+keyboard auto-repeat does not release additional blocks. It also saves, syncs
+and reopens the tower. Physical-device gesture cancellation remains untested.
