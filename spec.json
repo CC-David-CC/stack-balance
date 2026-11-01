@@ -1,0 +1,123 @@
+{
+  "category": "02-three-physics-xr",
+  "id": "stack-balance",
+  "title": "Stack & Balance",
+  "genre": "Stability challenge",
+  "pitch": "Build a tower from awkward blocks and keep it stable while the table gives a small, announced nudge.",
+  "capabilities": [
+    "Contact stability and friction",
+    "Bounded impulse events",
+    "Measured objectives rather than visual guesses"
+  ],
+  "rules": [
+    "Place a prescribed block sequence; release each block before selecting another.",
+    "Success requires all target blocks supported above the line for a fixed dwell interval and surviving one bounded nudge.",
+    "Only toy objects are simulated. Slow-motion practice is a named rule setting, not display-dependent physics."
+  ],
+  "content": "Ten challenges with increasing shape variety, height targets and two difficulty settings.",
+  "state": [
+    "challenge id",
+    "ordered remaining blocks",
+    "world snapshot and stable ids",
+    "dwell and nudge counters",
+    "score and medals",
+    "rule setting"
+  ],
+  "actions": [
+    {
+      "command": "position-block",
+      "desktop": "Drag placement target",
+      "phone": "Tap block then drag placement target",
+      "xr": "Hand or ray grab constrained to build region"
+    },
+    {
+      "command": "rotate-block",
+      "desktop": "Q/E or gizmo",
+      "phone": "Rotate left/right buttons",
+      "xr": "Two-step rotate handle or buttons"
+    },
+    {
+      "command": "release-block",
+      "desktop": "Release pointer / Space",
+      "phone": "Drop button",
+      "xr": "Release grab or Drop control"
+    }
+  ],
+  "rive": {
+    "asset": "balance-meter.riv",
+    "role": "Stability instrument and announcer on the bench, not an authoritative physics solver.",
+    "properties": {
+      "stability": "number 0..1",
+      "height": "number",
+      "phase": "enum build/settle/nudge/result"
+    },
+    "events": [
+      "warning",
+      "success",
+      "collapse"
+    ],
+    "states": [
+      "calm",
+      "unstable",
+      "celebrate"
+    ],
+    "artboard": "Main",
+    "stateMachine": "Presentation",
+    "assetStatus": "to_author"
+  },
+  "polish": [
+    "Show center-of-mass projection as an optional teaching overlay",
+    "Audible/visual nudge countdown",
+    "Gentle failures with one-tap retry"
+  ],
+  "tests": [
+    "Dwell counts only when objective predicates hold continuously.",
+    "Nudge occurs once and uses model coordinates.",
+    "Dropped input cannot leave a block attached forever.",
+    "Measure height from colliders, not decorative Rive art.",
+    "Save before nudge restores its timer.",
+    "AR placement changes neither mass nor support predicates."
+  ],
+  "loop": [
+    "accept one active block manipulation",
+    "apply bounded target and release operation",
+    "step contacts and evaluate support/height",
+    "update dwell and scheduled nudge",
+    "commit success/collapse and drive non-authoritative stability meter"
+  ],
+  "save": "Same-build world snapshot plus sequence, dwell, nudge and progress counters.",
+  "wave": 2,
+  "xr_mode": "tabletop",
+  "xr_presentation": "Reachable building board; optional hand grabbing, always with ray/button alternative.",
+  "comfort": "No head-follow camera and no forced camera shake on collapse.",
+  "specVersion": 1,
+  "status": "planned",
+  "implementation": "not_started",
+  "runtimeTests": "not_run",
+  "engine": "Three.js + Rapier",
+  "singlePlayer": true,
+  "phoneRequired": true,
+  "mountContract": {
+    "export": "mount",
+    "synchronous": true,
+    "returns": [
+      "element",
+      "dispose"
+    ],
+    "productionEntry": "index.mjs",
+    "suppliedEntry": "index.pseudo.mjs"
+  },
+  "xrRequired": true,
+  "riveRequired": true,
+  "riveAssetIncluded": false,
+  "documentKind": "Same-build world snapshot plus sequence, dwell, nudge and progress counters.",
+  "sources": [
+    "S04",
+    "S05",
+    "S06",
+    "S07",
+    "S08",
+    "S12",
+    "S13"
+  ]
+}
