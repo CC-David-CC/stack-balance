@@ -60,3 +60,7 @@ The isolated `tests/stack-balance-gesture-review.test.mjs` verifies that a
 cancelled emulated touch does not drop a block, a completed touch does, and
 keyboard auto-repeat does not release additional blocks. It also saves, syncs
 and reopens the tower. Physical-device gesture cancellation remains untested.
+
+## Design requirements
+
+The original [design brief, controls, save rules, artwork and acceptance plans](design/README.md) are retained as reference. They describe targets; the implementation and qualification status above takes precedence.
