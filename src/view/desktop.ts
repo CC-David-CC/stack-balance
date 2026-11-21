@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import * as RAPIER from "@dimforge/rapier3d-compat";
-import {SynthAudio} from "../audio/synth.js";
+import {SynthAudio} from "../audio/synth.ts";
 import {
   CHALLENGES,
   StackSession,
@@ -10,7 +10,7 @@ import {
   sessionFromSave,
   type BlockSpec,
   type StackSnapshot,
-} from "../model/stack.js";
+} from "../model/stack.ts";
 
 interface FileContext {
   owner: string;
@@ -498,7 +498,7 @@ export async function startView(host: Host, signal: AbortSignal): Promise<ViewHa
 
   function createScene(): void {
     renderer = new THREE.WebGLRenderer({antialias: true});
-    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 4));
     canvasHost.append(renderer.domElement);
     scene = new THREE.Scene();
     scene.background = new THREE.Color(contrast.checked ? 0x05070b : 0x172033);
@@ -540,6 +540,7 @@ export async function startView(host: Host, signal: AbortSignal): Promise<ViewHa
       if (!renderer || !camera || !canvasHost.isConnected) return;
       const width = Math.max(1, canvasHost.clientWidth);
       const height = Math.max(1, canvasHost.clientHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 4));
       renderer.setSize(width, height, false);
       camera.aspect = width / height;
       camera.updateProjectionMatrix();

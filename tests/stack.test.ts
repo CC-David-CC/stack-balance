@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "./test-shim.ts";
 import {
   CHALLENGES,
   DWELL_MS,
@@ -7,7 +7,7 @@ import {
   decodeSave,
   encodeSave,
   sessionFromSave,
-} from "../src/model/stack.js";
+} from "../src/model/stack.ts";
 
 describe("StackSession rules", () => {
   it("dwell counts only while objective predicates hold continuously", () => {

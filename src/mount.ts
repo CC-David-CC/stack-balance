@@ -1,4 +1,4 @@
-import type { Host } from "./view/desktop.js";
+import type { Host } from "./view/desktop.ts";
 
 export interface MountResult {
   element: HTMLElement;
@@ -17,7 +17,7 @@ export function mount(host: Host): MountResult {
   let view: {element: HTMLElement; dispose(): void} | null = null;
 
   queueMicrotask(() => {
-    void import("./view/desktop.js").then(async ({startView}) => {
+    void import("./view/desktop.ts").then(async ({startView}) => {
       if (disposed || controller.signal.aborted) return;
       const candidate = await startView(host, controller.signal);
       if (disposed) {

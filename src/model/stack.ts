@@ -1,4 +1,4 @@
-import { Rng } from "./rng.js";
+import { Rng } from "./rng.ts";
 
 export const TABLE_WIDTH = 12; // model units; presentation scale never changes these
 export const SUPPORT_LINE = 4;
